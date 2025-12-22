@@ -28,10 +28,10 @@
     <section class="card" id="pin-card">
       <h2>Ingresa el PIN para responder</h2>
       <p class="muted">PIN universal requerido para mantener la encuesta segura.</p>
-      <div class="pin-form">
-        <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso">
-        <button id="pinButton" class="btn">Desbloquear encuesta</button>
-      </div>
+      <form id="pinForm" class="pin-form" autocomplete="off">
+        <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
+        <button type="submit" id="pinButton" class="btn">Desbloquear encuesta</button>
+      </form>
       <p class="pin-hint">PIN: <strong>FCHN2025@</strong></p>
       <p class="error" id="pinError" role="alert"></p>
     </section>
