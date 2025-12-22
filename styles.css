@@ -108,6 +108,24 @@ body {
   border: 1px solid rgba(176, 139, 115, 0.25);
 }
 
+.pill.ready {
+  background: rgba(76, 175, 125, 0.15);
+  color: #2f7d55;
+  border-color: rgba(76, 175, 125, 0.28);
+}
+
+.pill.sending {
+  background: rgba(176, 139, 115, 0.18);
+  color: #a0735c;
+  border-color: rgba(176, 139, 115, 0.32);
+}
+
+.pill.sent {
+  background: rgba(76, 175, 125, 0.18);
+  color: #2f7d55;
+  border-color: rgba(76, 175, 125, 0.32);
+}
+
 .field {
   display: flex;
   flex-direction: column;
