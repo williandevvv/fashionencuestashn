@@ -29,7 +29,6 @@ const modeQ2CountEl = document.getElementById('modeQ2Count');
 const commentsList = document.getElementById('commentsList');
 const searchInput = document.getElementById('searchInput');
 const exportBtn = document.getElementById('exportBtn');
-const testConnBtn = document.getElementById('testConnBtn');
 const connStatus = document.getElementById('connStatus');
 const copyRules = document.getElementById('copyRules');
 const rulesText = document.getElementById('rulesText');
@@ -197,26 +196,6 @@ const ensureAdminClaim = async () => {
   throw new Error('missing-admin-claim');
 };
 
-const testConnection = async () => {
-  setConnStatus('Probando conexión...');
-  try {
-    await ensureAdminClaim();
-    await getDocs(query(collection(db, 'responses'), orderBy('createdAt', 'desc')));
-    setConnStatus('Conexión exitosa. El usuario tiene permisos de lectura.');
-  } catch (error) {
-    console.error('Error al probar conexión', error);
-    let message = 'No se pudo leer la colección. Verifica Auth y reglas.';
-
-    if (error.message === 'missing-admin-claim') {
-      message = 'Tu usuario no tiene el claim admin:true. Asígnalo y vuelve a iniciar sesión.';
-    } else if (error.code === 'permission-denied') {
-      message = 'Permiso denegado. Revisa que las reglas permitan read solo a admin:true y vuelve a entrar.';
-    }
-
-    setConnStatus(message, '#d66b6b');
-  }
-};
-
 const copyRulesToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(rulesText.textContent.trim());
@@ -242,7 +221,6 @@ loginForm.addEventListener('submit', async (event) => {
 logoutBtn.addEventListener('click', () => signOut(auth));
 searchInput.addEventListener('input', renderComments);
 exportBtn.addEventListener('click', exportCSV);
-testConnBtn.addEventListener('click', testConnection);
 copyRules.addEventListener('click', copyRulesToClipboard);
 
 onAuthStateChanged(auth, async (user) => {
