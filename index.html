@@ -28,7 +28,7 @@
     <section class="card" id="pin-card">
       <h2>Ingresa el PIN para responder</h2>
       <p class="muted">PIN requerido para mantener la encuesta segura.</p>
-      <form id="pinForm" class="pin-form" autocomplete="off">
+       <form id="pinForm" class="pin-form" autocomplete="off">
         <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
         <button type="submit" id="pinButton" class="btn">Desbloquear encuesta</button>
       </form>
@@ -58,8 +58,8 @@
           </select>
         </label>
         <label class="field">
-          <span>3) Comentarios (opcional, máx. 500 caracteres)</span>
-          <textarea id="q3" maxlength="500" placeholder="Cuéntanos qué podemos mejorar o qué te gustó"></textarea>
+          <span>3) Comentarios (opcional, máx. 250 caracteres)</span>
+          <textarea id="q3" maxlength="250" placeholder="Cuéntanos qué podemos mejorar o qué te gustó"></textarea>
           <div class="char-counter"><span id="charCount">0</span>/250</div>
         </label>
         <div class="actions">
@@ -68,6 +68,7 @@
         </div>
         <p class="success" id="successMsg" role="status"></p>
         <p class="error" id="errorMsg" role="alert"></p>
+        <button type="button" class="ghost" id="resetBtn">Responder otra vez</button>
       </form>
     </section>
   </main>
