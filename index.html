@@ -1,1 +1,81 @@
-hola
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuesta | Fashion Collection HN</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="brand-header">
+    <div class="brand-chip">Fashion Collection</div>
+    <div class="brand-chip">Variedades Miss Ceci</div>
+    <div class="brand-chip">Fashion Collection Fem</div>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Encuesta anónima</p>
+        <h1>Queremos saber tu opinión</h1>
+        <p class="lede">Responde dos preguntas rápidas (1 al 10) y agrega un comentario opcional. Usamos tus respuestas para mejorar.</p>
+      </div>
+    </section>
+
+    <section class="card" id="pin-card">
+      <h2>Ingresa el PIN para responder</h2>
+      <p class="muted">PIN universal requerido para mantener la encuesta segura.</p>
+      <div class="pin-form">
+        <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso">
+        <button id="pinButton" class="btn">Desbloquear encuesta</button>
+      </div>
+      <p class="pin-hint">PIN: <strong>FCHN2025@</strong></p>
+      <p class="error" id="pinError" role="alert"></p>
+    </section>
+
+    <section class="card" id="survey-card" aria-live="polite">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">Formulario</p>
+          <h2>Comparte tu percepción</h2>
+        </div>
+        <span class="pill" id="status-pill">Bloqueado</span>
+      </div>
+      <form id="surveyForm" novalidate>
+        <label class="field">
+          <span>1) Califica tu experiencia general (1 - 10)</span>
+          <select id="q1" required>
+            <option value="" disabled selected>Selecciona un número</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>2) ¿Qué tan probable es que nos recomiendes? (1 - 10)</span>
+          <select id="q2" required>
+            <option value="" disabled selected>Selecciona un número</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>3) Comentarios (opcional, máx. 250 caracteres)</span>
+          <textarea id="q3" maxlength="250" placeholder="Cuéntanos qué podemos mejorar o qué te gustó"></textarea>
+          <div class="char-counter"><span id="charCount">0</span>/250</div>
+        </label>
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn" disabled>Enviar respuesta</button>
+          <button type="button" class="ghost" id="resetBtn">Responder otra vez</button>
+        </div>
+        <p class="success" id="successMsg" role="status"></p>
+        <p class="error" id="errorMsg" role="alert"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Encuesta anónima. No recolectamos datos personales.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

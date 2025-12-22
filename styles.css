@@ -1,0 +1,235 @@
+:root {
+  --bg: #f7f1e9;
+  --card: #fff9f3;
+  --accent: #d8b4a0;
+  --accent-strong: #b08b73;
+  --text: #3c2f2f;
+  --muted: #7a6456;
+  --success: #4caf7d;
+  --error: #d66b6b;
+  --shadow: 0 10px 30px rgba(60, 47, 47, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top left, #fff5ec, #f7f1e9 40%, #f0e6db 100%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f0e2d3, #f6ede2);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand-chip {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  border: 1px solid #ead9c7;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+
+.layout {
+  width: min(1100px, 100%);
+  margin: 1.5rem auto;
+  padding: 0 1rem 2.5rem;
+  flex: 1;
+}
+
+.hero {
+  background: linear-gradient(135deg, rgba(216, 180, 160, 0.25), rgba(255, 249, 243, 0.9));
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  border: 1px solid #eddccb;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  margin: 0.35rem 0 0.25rem;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+}
+
+.hero .lede {
+  color: var(--muted);
+  margin: 0;
+  max-width: 700px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--accent-strong);
+  margin: 0;
+  font-weight: 700;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid #eeded0;
+  margin-top: 1.25rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pill {
+  background: rgba(176, 139, 115, 0.14);
+  color: var(--accent-strong);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid rgba(176, 139, 115, 0.25);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 1rem 0;
+  font-weight: 600;
+}
+
+select, textarea, input[type="password"] {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2d2c3;
+  background: #fffdf8;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: var(--text);
+}
+
+select:focus, textarea:focus, input[type="password"]:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(176, 139, 115, 0.2);
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.pin-form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--accent-strong), #a0735c);
+  color: #fff;
+  border: none;
+  padding: 0.9rem 1.3rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(160, 115, 92, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(160, 115, 92, 0.35);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--accent-strong);
+  border: 1px dashed #d7c2b0;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.muted {
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.pin-hint {
+  background: #fffdf8;
+  border: 1px dashed #e6d5c5;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  color: var(--muted);
+}
+
+.success {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.error {
+  color: var(--error);
+  font-weight: 700;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--muted);
+}
+
+.char-counter {
+  text-align: right;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#survey-card.locked {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 2.25rem;
+  }
+  .card {
+    padding: 1.75rem;
+  }
+}
