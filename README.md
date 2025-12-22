@@ -18,6 +18,7 @@ Encuesta anónima con panel de administración (Firebase Auth + Firestore) para 
    - En *Authentication > Sign-in method* activa *Correo/Contraseña*.
 3. **Crear usuario administrador**
    - En *Authentication > Usuarios* agrega un usuario con correo y contraseña que usarás en `/paneladmfc25`.
+   - Asigna un [custom claim](https://firebase.google.com/docs/auth/admin/custom-claims) `admin: true` a ese usuario (por ejemplo con la CLI `firebase auth:import` o un script con Admin SDK) para habilitar solo lectura desde el panel.
 4. **Crear Firestore (modo producción)**
    - En *Firestore Database* crea la base de datos en modo producción. La colección usada es `responses`.
 5. **Pegar reglas de seguridad**
@@ -27,13 +28,19 @@ Encuesta anónima con panel de administración (Firebase Auth + Firestore) para 
    rules_version = '2';
    service cloud.firestore {
      match /databases/{database}/documents {
-       match /responses/{document=**} {
-         allow create: if true;
-         allow read: if false;
-         allow update, delete: if false;
+       function isAdmin() {
+         return request.auth != null && request.auth.token.admin == true;
        }
+
+       match /responses/{document=**} {
+         allow create: if true;               // Público: solo crear
+         allow read: if isAdmin();            // Solo admin puede leer/listar
+         allow update, delete: if false;      // Nadie puede actualizar o borrar
+       }
+
        match /{document=**} {
-         allow read, write: if request.auth != null;
+         allow read: if isAdmin();
+         allow write: if false;
        }
      }
    }
