@@ -1,9 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Firebase CDN modules (sin bundler)
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-// Your web app's Firebase configuration
+// Configuración del proyecto
 const firebaseConfig = {
   apiKey: "AIzaSyCjWB8gBuXhkkiYqgJZD9WZnbP50qZsduo",
   authDomain: "fashionencuestashn.firebaseapp.com",
@@ -13,5 +12,8 @@ const firebaseConfig = {
   appId: "1:945445364712:web:87a8309dba7cd9d6ef3a5d"
 };
 
-// Initialize Firebase
+// Inicializa Firebase y expone Firestore para el resto de la app
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+export { app, db };
