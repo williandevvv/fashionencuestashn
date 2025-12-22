@@ -17,21 +17,40 @@ const successMsg = document.getElementById('successMsg');
 const errorMsg = document.getElementById('errorMsg');
 const charCount = document.getElementById('charCount');
 
+let surveyState = 'locked';
+
+const setStatusPill = (text, variant) => {
+  statusPill.textContent = text;
+  statusPill.className = `pill ${variant}`;
+};
+
+const setFormDisabled = (disabled) => {
+  [q1Select, q2Select, q3Input, submitBtn, resetBtn].forEach((el) => {
+    if (el) el.disabled = disabled;
+  });
+  surveyCard.classList.toggle('locked', disabled);
+};
+
+const ensurePinReady = () => {
+  pinInput.disabled = false;
+  pinButton.disabled = false;
+};
+
 const unlockSurvey = () => {
-  surveyCard.classList.remove('locked');
-  submitBtn.disabled = false;
-  statusPill.textContent = 'Listo para responder';
-  statusPill.style.background = 'rgba(76, 175, 125, 0.15)';
-  statusPill.style.color = '#2f7d55';
+  surveyState = 'ready';
+  setFormDisabled(false);
+  setStatusPill('Listo para responder', 'ready');
   pinError.textContent = '';
+  successMsg.textContent = '';
+  errorMsg.textContent = '';
+  ensurePinReady();
 };
 
 const lockSurvey = () => {
-  surveyCard.classList.add('locked');
-  submitBtn.disabled = true;
-  statusPill.textContent = 'Bloqueado';
-  statusPill.style.background = 'rgba(176, 139, 115, 0.14)';
-  statusPill.style.color = '#b08b73';
+  surveyState = 'locked';
+  setFormDisabled(true);
+  setStatusPill('Bloqueado', 'locked');
+  ensurePinReady();
 };
 
 const buildNumberOptions = () => {
@@ -57,6 +76,7 @@ const resetForm = () => {
   charCount.textContent = '0';
   successMsg.textContent = '';
   errorMsg.textContent = '';
+  pinError.textContent = '';
   lockSurvey();
   pinInput.value = '';
   pinInput.focus();
@@ -69,8 +89,16 @@ const sanitizeNumber = (value) => {
 
 const handleSubmit = async (event) => {
   event.preventDefault();
-  if (submitBtn.disabled) {
+
+  if (surveyState === 'sent') {
+    errorMsg.textContent = 'Esta respuesta ya fue enviada. Ingresa el PIN para responder de nuevo.';
+    pinInput.focus();
+    return;
+  }
+
+  if (surveyState !== 'ready') {
     errorMsg.textContent = 'Debes ingresar el PIN para responder.';
+    pinInput.focus();
     return;
   }
 
@@ -83,9 +111,12 @@ const handleSubmit = async (event) => {
     return;
   }
 
-  submitBtn.disabled = true;
+  surveyState = 'sending';
+  setFormDisabled(true);
+  ensurePinReady();
   errorMsg.textContent = '';
-  successMsg.textContent = 'Guardando...';
+  successMsg.textContent = 'Enviando...';
+  setStatusPill('Enviando...', 'sending');
 
   try {
     await addDoc(collection(db, 'responses'), {
@@ -94,15 +125,28 @@ const handleSubmit = async (event) => {
       q3,
       createdAt: serverTimestamp(),
     });
-    successMsg.textContent = '¡Gracias! Tu respuesta fue enviada de forma anónima.';
     surveyForm.reset();
     charCount.textContent = '0';
-    lockSurvey();
+    surveyState = 'locked';
+    setFormDisabled(true);
+    setStatusPill('Enviado ✅', 'sent');
+    successMsg.textContent = 'Gracias por participar';
+    pinInput.value = '';
+    ensurePinReady();
+    pinInput.focus();
+    document.getElementById('pin-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
     console.error('Error al guardar', error);
+    surveyState = 'ready';
+    setFormDisabled(false);
+    setStatusPill('Listo para responder', 'ready');
+    successMsg.textContent = '';
     errorMsg.textContent = 'No pudimos guardar la respuesta. Intenta de nuevo.';
   } finally {
-    submitBtn.disabled = true;
+    if (surveyState !== 'sent') {
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+    }
   }
 };
 
