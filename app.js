@@ -2,6 +2,7 @@ import { db } from './firebase.js';
 import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 const PIN = 'FCHN2025@';
+const pinForm = document.getElementById('pinForm');
 const pinInput = document.getElementById('pinInput');
 const pinButton = document.getElementById('pinButton');
 const pinError = document.getElementById('pinError');
@@ -141,12 +142,9 @@ const handleSubmit = async (event) => {
   }
 };
 
-pinButton.addEventListener('click', validatePin);
-pinInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    validatePin();
-  }
+pinForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  validatePin();
 });
 
 q3Input.addEventListener('input', () => {
