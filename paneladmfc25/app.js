@@ -29,9 +29,6 @@ const modeQ2CountEl = document.getElementById('modeQ2Count');
 const commentsList = document.getElementById('commentsList');
 const searchInput = document.getElementById('searchInput');
 const exportBtn = document.getElementById('exportBtn');
-const connStatus = document.getElementById('connStatus');
-const copyRules = document.getElementById('copyRules');
-const rulesText = document.getElementById('rulesText');
 
 let chartQ1;
 let chartQ2;
@@ -185,26 +182,10 @@ const exportCSV = () => {
   URL.revokeObjectURL(url);
 };
 
-const setConnStatus = (message, color = '#2f7d55') => {
-  connStatus.textContent = message;
-  connStatus.style.color = color;
-};
-
 const ensureAdminClaim = async () => {
   const token = await auth.currentUser?.getIdTokenResult?.();
   if (token?.claims?.admin) return true;
   throw new Error('missing-admin-claim');
-};
-
-const copyRulesToClipboard = async () => {
-  try {
-    await navigator.clipboard.writeText(rulesText.textContent.trim());
-    connStatus.textContent = 'Reglas copiadas al portapapeles.';
-    connStatus.style.color = '#2f7d55';
-  } catch (error) {
-    connStatus.textContent = 'No se pudieron copiar las reglas.';
-    connStatus.style.color = '#d66b6b';
-  }
 };
 
 loginForm.addEventListener('submit', async (event) => {
@@ -221,7 +202,6 @@ loginForm.addEventListener('submit', async (event) => {
 logoutBtn.addEventListener('click', () => signOut(auth));
 searchInput.addEventListener('input', renderComments);
 exportBtn.addEventListener('click', exportCSV);
-copyRules.addEventListener('click', copyRulesToClipboard);
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -234,13 +214,7 @@ onAuthStateChanged(auth, async (user) => {
   try {
     await ensureAdminClaim();
     await fetchResponses();
-    setConnStatus('Sesión válida y reglas OK para admin:true');
   } catch (error) {
     console.error('No se pudieron leer respuestas', error);
-    if (error.message === 'missing-admin-claim') {
-      setConnStatus('Iniciaste sesión pero no tienes admin:true. Asigna el claim y vuelve a entrar.', '#d66b6b');
-    } else {
-      setConnStatus('No se pudo leer la colección. Verifica reglas y permisos.', '#d66b6b');
-    }
   }
 });

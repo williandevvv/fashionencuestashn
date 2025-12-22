@@ -129,27 +129,6 @@ input:focus, select:focus {
   flex-wrap: wrap;
 }
 
-.checklist {
-  display: grid;
-  gap: 0.35rem;
-  margin: 0.75rem 0;
-}
-
-.rules-box {
-  background: #fff;
-  border: 1px dashed #e2d2c3;
-  border-radius: 12px;
-  padding: 0.75rem;
-  overflow-x: auto;
-}
-
-.rules-box pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font-family: 'JetBrains Mono', Consolas, monospace;
-  color: var(--text);
-}
-
 .comments-list {
   max-height: 320px;
   overflow: auto;

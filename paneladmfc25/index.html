@@ -80,49 +80,6 @@
         </article>
       </div>
 
-     <section class="card config-card">
-        <div class="card-header">
-          <div>
-            <p class="eyebrow">Configurar Firebase</p>
-            <h3>Checklist y reglas</h3>
-          </div>
-        </div>
-        <div class="checklist">
-          <label><input type="checkbox" checked disabled> Proyecto Firebase creado</label>
-          <label><input type="checkbox" checked disabled> Auth (Email/Password) habilitado</label>
-          <label><input type="checkbox" checked disabled> Usuario admin creado</label>
-          <label><input type="checkbox" checked disabled> Firestore en modo producción</label>
-          <label><input type="checkbox" checked disabled> Reglas aplicadas</label>
-        </div>
-        <div class="rules-box">
-          <div class="card-header">
-            <h4>Reglas recomendadas</h4>
-            <button class="ghost" id="copyRules" type="button">Copiar reglas</button>
-          </div> 
-<pre><code id="rulesText">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-
-    match /responses/{document=**} {
-      allow create: if true;               // Público: solo crear
-      allow read: if isAdmin();            // Solo admin puede leer/listar
-      allow update, delete: if false;      // Nadie puede actualizar o borrar
-    }
-
-    match /{document=**} {
-      allow read: if isAdmin();
-      allow write: if false;
-    }
-  }
-}
-</code></pre>
-        </div> 
-        <p class="muted" id="connStatus"></p>
-      </section>
-
       <section class="card comments">
         <div class="card-header">
           <div>
