@@ -186,16 +186,34 @@ const exportCSV = () => {
   URL.revokeObjectURL(url);
 };
 
+const setConnStatus = (message, color = '#2f7d55') => {
+  connStatus.textContent = message;
+  connStatus.style.color = color;
+};
+
+const ensureAdminClaim = async () => {
+  const token = await auth.currentUser?.getIdTokenResult?.();
+  if (token?.claims?.admin) return true;
+  throw new Error('missing-admin-claim');
+};
+
 const testConnection = async () => {
-  connStatus.textContent = 'Probando conexión...';
+  setConnStatus('Probando conexión...');
   try {
+    await ensureAdminClaim();
     await getDocs(query(collection(db, 'responses'), orderBy('createdAt', 'desc')));
-    connStatus.textContent = 'Conexión exitosa. El usuario tiene permisos de lectura.';
-    connStatus.style.color = '#2f7d55';
+    setConnStatus('Conexión exitosa. El usuario tiene permisos de lectura.');
   } catch (error) {
     console.error('Error al probar conexión', error);
-    connStatus.textContent = 'No se pudo leer la colección. Verifica Auth y reglas.';
-    connStatus.style.color = '#d66b6b';
+    let message = 'No se pudo leer la colección. Verifica Auth y reglas.';
+
+    if (error.message === 'missing-admin-claim') {
+      message = 'Tu usuario no tiene el claim admin:true. Asígnalo y vuelve a iniciar sesión.';
+    } else if (error.code === 'permission-denied') {
+      message = 'Permiso denegado. Revisa que las reglas permitan read solo a admin:true y vuelve a entrar.';
+    }
+
+    setConnStatus(message, '#d66b6b');
   }
 };
 
@@ -228,10 +246,23 @@ testConnBtn.addEventListener('click', testConnection);
 copyRules.addEventListener('click', copyRulesToClipboard);
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    showDashboard();
-    await fetchResponses();
-  } else {
+  if (!user) {
     showLogin();
+    return;
+  }
+
+  showDashboard();
+
+  try {
+    await ensureAdminClaim();
+    await fetchResponses();
+    setConnStatus('Sesión válida y reglas OK para admin:true');
+  } catch (error) {
+    console.error('No se pudieron leer respuestas', error);
+    if (error.message === 'missing-admin-claim') {
+      setConnStatus('Iniciaste sesión pero no tienes admin:true. Asigna el claim y vuelve a entrar.', '#d66b6b');
+    } else {
+      setConnStatus('No se pudo leer la colección. Verifica reglas y permisos.', '#d66b6b');
+    }
   }
 });
