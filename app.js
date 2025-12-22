@@ -55,14 +55,18 @@ const buildNumberOptions = () => {
   q2Select.insertAdjacentHTML('beforeend', options);
 };
 
+const isValidPin = (value) => value.trim() === PIN;
+
 const validatePin = () => {
-  const value = pinInput.value.trim();
-  if (value !== PIN) {
+  if (!isValidPin(pinInput.value)) {
     pinError.textContent = 'PIN incorrecto. Inténtalo de nuevo.';
     lockSurvey();
-    return;
+    pinInput.focus();
+    return false;
   }
   unlockSurvey();
+  q1Select?.focus();
+  return true;
 };
 
 const resetForm = () => {
@@ -145,6 +149,17 @@ const handleSubmit = async (event) => {
 pinForm.addEventListener('submit', (event) => {
   event.preventDefault();
   validatePin();
+});
+
+pinInput.addEventListener('input', () => {
+  if (pinError.textContent) pinError.textContent = '';
+
+  if (surveyState === 'ready' || surveyState === 'sending') return;
+
+  if (isValidPin(pinInput.value)) {
+    unlockSurvey();
+    q1Select?.focus();
+  }
 });
 
 q3Input.addEventListener('input', () => {
