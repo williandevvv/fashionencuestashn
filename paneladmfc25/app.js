@@ -50,11 +50,13 @@ const pinFeedback = document.getElementById('pinFeedback');
 const visibilityToggles = document.querySelectorAll('.toggle-visibility');
 const insightsList = document.getElementById('insightsList');
 
+const DEFAULT_ACCESS_PIN = 'FCHN2025@';
+
 let chartQ1;
 let chartQ2;
 let cachedResponses = [];
 let cachedQuestions = [];
-let currentAccessPin = '';
+let currentAccessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
   { id: 'q1', text: 'Califica tu experiencia general (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 1 },
@@ -95,7 +97,7 @@ const fetchQuestions = async () => {
 
 const fetchAccessPin = async () => {
   const pinDoc = await getDoc(doc(db, 'settings', 'access'));
-  currentAccessPin = pinDoc.exists() ? pinDoc.data()?.pin || '' : '';
+  currentAccessPin = pinDoc.exists() ? pinDoc.data()?.pin || DEFAULT_ACCESS_PIN : DEFAULT_ACCESS_PIN;
 };
 
 const fetchResponses = async () => {
@@ -409,6 +411,7 @@ pinFormAdmin.addEventListener('submit', async (event) => {
   const currentValue = sanitizePinValue(currentPin.value);
   const newValue = sanitizePinValue(newPin.value);
   const confirmValue = sanitizePinValue(confirmPin.value);
+  const submitButton = pinFormAdmin.querySelector('button[type="submit"]');
 
   if (currentAccessPin && currentValue !== currentAccessPin) {
     pinFeedback.textContent = 'El PIN actual no coincide.';
@@ -430,6 +433,9 @@ pinFormAdmin.addEventListener('submit', async (event) => {
     return;
   }
 
+  submitButton.disabled = true;
+  submitButton.textContent = 'Guardando...';
+
   try {
     await setDoc(doc(db, 'settings', 'access'), { pin: newValue });
     currentAccessPin = newValue;
@@ -437,7 +443,13 @@ pinFormAdmin.addEventListener('submit', async (event) => {
     pinFormAdmin.reset();
   } catch (error) {
     console.error('No se pudo actualizar el PIN', error);
-    pinFeedback.textContent = 'Error al guardar el PIN.';
+    pinFeedback.textContent =
+      error.code === 'permission-denied'
+        ? 'No tienes permisos para actualizar el PIN. Revisa las reglas de Firestore.'
+        : 'Error al guardar el PIN.';
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Actualizar PIN';
   }
 });
 
