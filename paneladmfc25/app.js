@@ -14,6 +14,7 @@ import {
   setDoc,
   updateDoc,
   addDoc,
+  deleteDoc,
 } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 const loginForm = document.getElementById('loginForm');
@@ -52,6 +53,7 @@ const currentPin = document.getElementById('currentPin');
 const newPin = document.getElementById('newPin');
 const confirmPin = document.getElementById('confirmPin');
 const pinFeedback = document.getElementById('pinFeedback');
+const visibilityToggles = document.querySelectorAll('.toggle-visibility');
 
 let chartQ1;
 let chartQ2;
@@ -64,6 +66,25 @@ const defaultQuestions = [
   { id: 'q2', text: '¿Qué tan probable es que nos recomiendes? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
   { id: 'q3', text: 'Comentarios', type: 'text', required: false, order: 3 },
 ];
+
+const setQuestionFeedbackMessage = (message) => {
+  questionFeedback.textContent = message;
+};
+
+const sanitizePinValue = (value) => value.trim();
+
+const togglePasswordVisibility = (button) => {
+  const input = document.getElementById(button.dataset.target);
+  if (!input) return;
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  button.setAttribute('aria-pressed', (!showing).toString());
+  button.textContent = showing ? '👁' : '🙈';
+};
+
+visibilityToggles.forEach((button) => {
+  button.addEventListener('click', () => togglePasswordVisibility(button));
+});
 
 const showDashboard = () => {
   loginCard.classList.add('hidden');
@@ -268,7 +289,10 @@ const renderQuestionsAdmin = () => {
           <p class="eyebrow">${q.id}</p>
           <h4>${q.text}</h4>
         </div>
-        <button class="btn ghost save-question" type="button" data-id="${q.id}">Guardar</button>
+        <div class="question-actions">
+          <button class="btn ghost" type="button" data-action="save">Guardar</button>
+          <button class="btn danger" type="button" data-action="delete">Eliminar</button>
+        </div>
       </div>
       <div class="grid two-cols">
         <label class="field">
@@ -286,7 +310,7 @@ const renderQuestionsAdmin = () => {
       <div class="grid two-cols">
         <label class="field">
           <span>Escala máx. (solo numérica)</span>
-          <input type="number" class="qa-scale" min="2" max="10" value="${q.scaleMax || 10}">
+          <input type="number" class="qa-scale" min="2" max="10" value="${q.scaleMax || 10}" ${q.type !== 'rating' ? 'disabled' : ''}>
         </label>
         <label class="field">
           <span>Obligatoria</span>
@@ -300,6 +324,7 @@ const renderQuestionsAdmin = () => {
         <span>Orden</span>
         <input type="number" class="qa-order" min="1" value="${q.order || 1}">
       </label>
+      <p class="muted qa-feedback"></p>
     `;
     questionsAdmin.appendChild(wrapper);
   });
@@ -393,6 +418,13 @@ questionType.addEventListener('change', () => {
   scaleField.classList.toggle('hidden', questionType.value !== 'rating');
 });
 
+questionsAdmin.addEventListener('change', (event) => {
+  if (!event.target.classList.contains('qa-type')) return;
+  const card = event.target.closest('.question-admin');
+  const scaleInput = card?.querySelector('.qa-scale');
+  if (scaleInput) scaleInput.disabled = event.target.value !== 'rating';
+});
+
 questionForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   questionFeedback.textContent = '';
@@ -423,7 +455,8 @@ questionForm.addEventListener('submit', async (event) => {
 });
 
 questionsAdmin.addEventListener('click', async (event) => {
-  if (!event.target.classList.contains('save-question')) return;
+  const action = event.target.dataset.action;
+  if (!action) return;
 
   const card = event.target.closest('.question-admin');
   const id = card?.dataset.id;
@@ -432,23 +465,46 @@ questionsAdmin.addEventListener('click', async (event) => {
   const scaleInput = card.querySelector('.qa-scale');
   const requiredSelect = card.querySelector('.qa-required');
   const orderInput = card.querySelector('.qa-order');
+  const cardFeedback = card.querySelector('.qa-feedback');
 
   const payload = {
     text: textInput.value.trim(),
     type: typeSelect.value,
-    scaleMax: Number(scaleInput.value) || 10,
+    scaleMax: Math.min(Math.max(Number(scaleInput.value) || 10, 2), 10),
     required: requiredSelect.value === 'true',
-    order: Number(orderInput.value) || 1,
+    order: Math.max(Number(orderInput.value) || 1, 1),
   };
 
-  if (!id || !payload.text) return;
+  cardFeedback.textContent = '';
+
+  if (!id) return;
+
+  if (!payload.text) {
+    cardFeedback.textContent = 'Escribe el título de la pregunta.';
+    return;
+  }
 
   event.target.disabled = true;
+  if (action === 'delete' && !confirm('¿Eliminar esta pregunta del catálogo?')) {
+    event.target.disabled = false;
+    return;
+  }
+
   try {
-    await saveQuestion(id, payload);
+    if (action === 'save') {
+      if (payload.type !== 'rating') delete payload.scaleMax;
+      await saveQuestion(id, payload);
+      cardFeedback.textContent = 'Guardado. La encuesta mostrará esta versión.';
+      setQuestionFeedbackMessage('Pregunta actualizada correctamente.');
+    } else if (action === 'delete') {
+      await deleteDoc(doc(db, 'questions', id));
+      cardFeedback.textContent = 'Pregunta eliminada.';
+      setQuestionFeedbackMessage('Pregunta eliminada del catálogo.');
+    }
     await loadDashboardData();
   } catch (error) {
     console.error('No se pudo actualizar la pregunta', error);
+    cardFeedback.textContent = 'No se pudo completar la acción.';
   } finally {
     event.target.disabled = false;
   }
@@ -458,20 +514,34 @@ pinFormAdmin.addEventListener('submit', async (event) => {
   event.preventDefault();
   pinFeedback.textContent = '';
 
-  if (currentPin.value !== currentAccessPin) {
+  const currentValue = sanitizePinValue(currentPin.value);
+  const newValue = sanitizePinValue(newPin.value);
+  const confirmValue = sanitizePinValue(confirmPin.value);
+
+  if (currentAccessPin && currentValue !== currentAccessPin) {
     pinFeedback.textContent = 'El PIN actual no coincide.';
     return;
   }
 
-  if (newPin.value !== confirmPin.value) {
+  if (!newValue) {
+    pinFeedback.textContent = 'Ingresa el nuevo PIN.';
+    return;
+  }
+
+  if (newValue.length < 4) {
+    pinFeedback.textContent = 'El PIN debe tener al menos 4 caracteres.';
+    return;
+  }
+
+  if (newValue !== confirmValue) {
     pinFeedback.textContent = 'El nuevo PIN no coincide en la confirmación.';
     return;
   }
 
   try {
-    await setDoc(doc(db, 'settings', 'access'), { pin: newPin.value.trim() });
-    currentAccessPin = newPin.value.trim();
-    pinFeedback.textContent = 'PIN actualizado.';
+    await setDoc(doc(db, 'settings', 'access'), { pin: newValue });
+    currentAccessPin = newValue;
+    pinFeedback.textContent = 'PIN actualizado. Usa este valor en la encuesta.';
     pinFormAdmin.reset();
   } catch (error) {
     console.error('No se pudo actualizar el PIN', error);

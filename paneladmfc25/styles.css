@@ -89,6 +89,11 @@ input:focus, select:focus {
   box-shadow: 0 10px 22px rgba(160, 115, 92, 0.25);
 }
 
+.btn.danger {
+  background: linear-gradient(135deg, #d66b6b, #c94f4f);
+  box-shadow: 0 10px 22px rgba(201, 79, 79, 0.25);
+}
+
 .ghost {
   background: transparent;
   color: var(--accent-strong);
@@ -97,6 +102,22 @@ input:focus, select:focus {
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.icon-btn {
+  background: #f0e2d3;
+  border: 1px solid #e2d2c3;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  min-width: 44px;
+  font-size: 1rem;
+}
+
+.icon-btn[aria-pressed="true"] {
+  background: #e3d3c3;
+  border-color: var(--accent-strong);
 }
 
 .grid {
@@ -233,6 +254,17 @@ input:focus, select:focus {
   margin-bottom: 0.5rem;
 }
 
+.question-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.qa-feedback {
+  margin: 0.35rem 0 0;
+}
+
 .stack {
   display: grid;
   gap: 0.6rem;
@@ -240,6 +272,16 @@ input:focus, select:focus {
 
 .two-cols {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.input-with-toggle {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.input-with-toggle input {
+  flex: 1;
 }
 
 @media (min-width: 900px) {

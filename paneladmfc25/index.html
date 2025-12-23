@@ -114,17 +114,17 @@
 
       <section class="grid config">
         <article class="card">
-          <div class="card-header">
-            <div>
-              <p class="eyebrow">Catálogo</p>
-              <h3>Preguntas</h3>
-            </div>
-            <small class="muted">Edita el texto, tipo y orden.</small>
-          </div>
-          <div id="questionsAdmin"></div>
-          <form id="questionForm" class="stack">
-            <h4>Agregar nueva pregunta</h4>
-            <label class="field">
+      <div class="card-header">
+        <div>
+          <p class="eyebrow">Catálogo</p>
+          <h3>Preguntas</h3>
+        </div>
+        <small class="muted">Edita el texto, tipo y orden. Guarda o elimina cada pregunta.</small>
+      </div>
+      <div id="questionsAdmin"></div>
+      <form id="questionForm" class="stack">
+        <h4>Agregar nueva pregunta</h4>
+        <label class="field">
               <span>Texto de la pregunta</span>
               <input type="text" id="questionText" required>
             </label>
@@ -170,15 +170,24 @@
           <form id="pinForm" class="stack">
             <label class="field">
               <span>PIN actual</span>
-              <input type="password" id="currentPin" required>
+              <div class="input-with-toggle">
+                <input type="password" id="currentPin" required>
+                <button class="icon-btn toggle-visibility" type="button" data-target="currentPin" aria-label="Mostrar u ocultar PIN actual">👁</button>
+              </div>
             </label>
             <label class="field">
               <span>Nuevo PIN</span>
-              <input type="password" id="newPin" required>
+              <div class="input-with-toggle">
+                <input type="password" id="newPin" required>
+                <button class="icon-btn toggle-visibility" type="button" data-target="newPin" aria-label="Mostrar u ocultar nuevo PIN">👁</button>
+              </div>
             </label>
             <label class="field">
               <span>Confirmar nuevo PIN</span>
-              <input type="password" id="confirmPin" required>
+              <div class="input-with-toggle">
+                <input type="password" id="confirmPin" required>
+                <button class="icon-btn toggle-visibility" type="button" data-target="confirmPin" aria-label="Mostrar u ocultar confirmación del PIN">👁</button>
+              </div>
             </label>
             <button class="btn" type="submit">Actualizar PIN</button>
             <p class="muted" id="pinFeedback"></p>
