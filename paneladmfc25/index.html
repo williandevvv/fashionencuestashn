@@ -63,22 +63,43 @@
         </article>
       </div>
 
+      <div class="card actions-bar">
+        <div class="actions">
+          <div class="actions-group">
+            <button class="btn" id="refreshBtn" type="button">Actualizar datos</button>
+            <button class="btn" id="exportBtn" type="button">Exportar CSV</button>
+          </div>
+          <span class="muted">Sincroniza y descarga las respuestas más recientes.</span>
+        </div>
+      </div>
+
       <div class="grid charts">
         <article class="card">
           <div class="card-header">
-            <h3>Grafica Pregunta 1</h3>
+            <h3 id="chartQ1Title">Grafica Pregunta 1</h3>
             <small class="muted">Conteo 1-10</small>
           </div>
           <canvas id="chartQ1" height="240"></canvas>
         </article>
         <article class="card">
           <div class="card-header">
-            <h3>Grafica Pregunta 2</h3>
+            <h3 id="chartQ2Title">Grafica Pregunta 2</h3>
             <small class="muted">Conteo 1-10</small>
           </div>
           <canvas id="chartQ2" height="240"></canvas>
         </article>
       </div>
+
+      <section class="card detail">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Detalle numérico</p>
+            <h3>Conteos por valor</h3>
+          </div>
+          <small class="muted">Visualiza qué número recibió más votos.</small>
+        </div>
+        <div class="detail-grid" id="detailGrid"></div>
+      </section>
 
       <section class="card comments">
         <div class="card-header">
@@ -91,12 +112,79 @@
         <div class="comments-list" id="commentsList"></div>
       </section>
 
-      <div class="card actions-bar">
-        <div class="actions">
-          <button class="btn" id="exportBtn" type="button">Exportar CSV</button>
-          <span class="muted">Descarga local de todas las respuestas.</span>
-        </div>
-      </div>
+      <section class="grid config">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Catálogo</p>
+              <h3>Preguntas</h3>
+            </div>
+            <small class="muted">Edita el texto, tipo y orden.</small>
+          </div>
+          <div id="questionsAdmin"></div>
+          <form id="questionForm" class="stack">
+            <h4>Agregar nueva pregunta</h4>
+            <label class="field">
+              <span>Texto de la pregunta</span>
+              <input type="text" id="questionText" required>
+            </label>
+            <div class="grid two-cols">
+              <label class="field">
+                <span>Tipo de respuesta</span>
+                <select id="questionType" required>
+                  <option value="rating">Escala numérica</option>
+                  <option value="text">Texto libre</option>
+                </select>
+              </label>
+              <label class="field" id="scaleField">
+                <span>Escala máxima (solo numéricas)</span>
+                <input type="number" id="questionScale" min="2" max="10" value="10">
+              </label>
+            </div>
+            <div class="grid two-cols">
+              <label class="field">
+                <span>Obligatoria</span>
+                <select id="questionRequired">
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Orden</span>
+                <input type="number" id="questionOrder" min="1" value="1">
+              </label>
+            </div>
+            <button class="btn" type="submit">Guardar pregunta</button>
+            <p class="muted" id="questionFeedback"></p>
+          </form>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow">Seguridad</p>
+              <h3>PIN de acceso</h3>
+            </div>
+            <small class="muted">Actualiza el PIN sin tocar el código.</small>
+          </div>
+          <form id="pinForm" class="stack">
+            <label class="field">
+              <span>PIN actual</span>
+              <input type="password" id="currentPin" required>
+            </label>
+            <label class="field">
+              <span>Nuevo PIN</span>
+              <input type="password" id="newPin" required>
+            </label>
+            <label class="field">
+              <span>Confirmar nuevo PIN</span>
+              <input type="password" id="confirmPin" required>
+            </label>
+            <button class="btn" type="submit">Actualizar PIN</button>
+            <p class="muted" id="pinFeedback"></p>
+          </form>
+        </article>
+      </section>
     </section>
   </main>
 

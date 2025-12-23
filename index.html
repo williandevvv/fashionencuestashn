@@ -28,11 +28,11 @@
     <section class="card" id="pin-card">
       <h2>Ingresa el PIN para responder</h2>
       <p class="muted">PIN requerido para mantener la encuesta segura.</p>
-       <form id="pinForm" class="pin-form" autocomplete="off">
+      <form id="pinForm" class="pin-form" autocomplete="off">
         <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
         <button type="submit" id="pinButton" class="btn">Desbloquear encuesta</button>
       </form>
-      <p class="pin-hint">PIN: <strong>FCHN2025@</strong></p>
+      <p class="pin-hint" id="pinHint"></p>
       <p class="error" id="pinError" role="alert"></p>
     </section>
 
@@ -42,29 +42,12 @@
           <p class="eyebrow">Formulario</p>
           <h2>Comparte tu percepción</h2>
         </div>
-        <span class="pill" id="status-pill">Bloqueado</span>
+        <span class="pill" id="status-pill">Cargando...</span>
       </div>
       <form id="surveyForm" novalidate>
-        <label class="field">
-          <span>1) Califica tu experiencia general (1 - 10)</span>
-          <select id="q1" required>
-            <option value="" disabled selected>Selecciona un número</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>2) ¿Qué tan probable es que nos recomiendes? (1 - 10)</span>
-          <select id="q2" required>
-            <option value="" disabled selected>Selecciona un número</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>3) Comentarios (opcional, máx. 250 caracteres)</span>
-          <textarea id="q3" maxlength="250" placeholder="Cuéntanos qué podemos mejorar o qué te gustó"></textarea>
-          <div class="char-counter"><span id="charCount">0</span>/250</div>
-        </label>
+        <div id="questionsContainer" class="questions"></div>
         <div class="actions">
           <button type="submit" class="btn" id="submitBtn" disabled>Enviar respuesta</button>
-         
         </div>
         <p class="success" id="successMsg" role="status"></p>
         <p class="error" id="errorMsg" role="alert"></p>
