@@ -233,6 +233,32 @@ input:focus, select:focus {
   background: var(--accent-strong);
 }
 
+.insights {
+  margin: 1.2rem 0;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.insight-card {
+  border: 1px dashed #e2d2c3;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #fffefb;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.insight-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
 .config {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   margin-top: 1.4rem;
