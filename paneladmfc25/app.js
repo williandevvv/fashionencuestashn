@@ -12,9 +12,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
-  addDoc,
-  deleteDoc,
 } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 const loginForm = document.getElementById('loginForm');
@@ -32,6 +29,12 @@ const modeQ1El = document.getElementById('modeQ1');
 const modeQ1CountEl = document.getElementById('modeQ1Count');
 const modeQ2El = document.getElementById('modeQ2');
 const modeQ2CountEl = document.getElementById('modeQ2Count');
+const medianQ1El = document.getElementById('medianQ1');
+const medianQ2El = document.getElementById('medianQ2');
+const positiveQ1El = document.getElementById('positiveQ1');
+const positiveQ2El = document.getElementById('positiveQ2');
+const detractorsQ1El = document.getElementById('detractorsQ1');
+const detractorsQ2El = document.getElementById('detractorsQ2');
 const commentsList = document.getElementById('commentsList');
 const searchInput = document.getElementById('searchInput');
 const exportBtn = document.getElementById('exportBtn');
@@ -39,21 +42,13 @@ const refreshBtn = document.getElementById('refreshBtn');
 const detailGrid = document.getElementById('detailGrid');
 const chartQ1Title = document.getElementById('chartQ1Title');
 const chartQ2Title = document.getElementById('chartQ2Title');
-const questionsAdmin = document.getElementById('questionsAdmin');
-const questionForm = document.getElementById('questionForm');
-const questionText = document.getElementById('questionText');
-const questionType = document.getElementById('questionType');
-const questionScale = document.getElementById('questionScale');
-const questionRequired = document.getElementById('questionRequired');
-const questionOrder = document.getElementById('questionOrder');
-const questionFeedback = document.getElementById('questionFeedback');
-const scaleField = document.getElementById('scaleField');
 const pinFormAdmin = document.getElementById('pinForm');
 const currentPin = document.getElementById('currentPin');
 const newPin = document.getElementById('newPin');
 const confirmPin = document.getElementById('confirmPin');
 const pinFeedback = document.getElementById('pinFeedback');
 const visibilityToggles = document.querySelectorAll('.toggle-visibility');
+const insightsList = document.getElementById('insightsList');
 
 let chartQ1;
 let chartQ2;
@@ -66,10 +61,6 @@ const defaultQuestions = [
   { id: 'q2', text: '¿Qué tan probable es que nos recomiendes? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
   { id: 'q3', text: 'Comentarios', type: 'text', required: false, order: 3 },
 ];
-
-const setQuestionFeedbackMessage = (message) => {
-  questionFeedback.textContent = message;
-};
 
 const sanitizePinValue = (value) => value.trim();
 
@@ -114,18 +105,33 @@ const fetchResponses = async () => {
   renderCharts();
   renderComments();
   renderDetail();
+  renderInsights();
 };
 
 const loadDashboardData = async () => {
   await Promise.all([fetchQuestions(), fetchAccessPin()]);
   await fetchResponses();
-  renderQuestionsAdmin();
 };
 
 const calculateAverage = (numbers) => {
   if (!numbers.length) return '-';
   const avg = numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
   return avg.toFixed(2);
+};
+
+const calculateMedian = (numbers) => {
+  if (!numbers.length) return '-';
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) return ((sorted[mid - 1] + sorted[mid]) / 2).toFixed(2);
+  return sorted[mid].toFixed(2);
+};
+
+const calculatePercent = (numbers, predicate) => {
+  if (!numbers.length) return '-';
+  const total = numbers.length;
+  const count = numbers.filter(predicate).length;
+  return `${((count / total) * 100).toFixed(1)}%`;
 };
 
 const calculateMode = (numbers) => {
@@ -178,6 +184,14 @@ const renderStats = () => {
   modeQ1CountEl.textContent = mode1.count ? `${mode1.count} votos` : '';
   modeQ2El.textContent = mode2.value;
   modeQ2CountEl.textContent = mode2.count ? `${mode2.count} votos` : '';
+
+  medianQ1El.textContent = calculateMedian(q1Values);
+  medianQ2El.textContent = calculateMedian(q2Values);
+
+  positiveQ1El.textContent = calculatePercent(q1Values, (n) => n >= 8);
+  positiveQ2El.textContent = calculatePercent(q2Values, (n) => n >= 8);
+  detractorsQ1El.textContent = positiveQ1El.textContent === '-' ? '' : `Bajos (1-4): ${calculatePercent(q1Values, (n) => n <= 4)}`;
+  detractorsQ2El.textContent = positiveQ2El.textContent === '-' ? '' : `Bajos (1-4): ${calculatePercent(q2Values, (n) => n <= 4)}`;
 };
 
 const buildCounts = (values, scaleMax = 10) => {
@@ -272,68 +286,6 @@ const renderDetail = () => {
   });
 };
 
-const renderQuestionsAdmin = () => {
-  const questions = (cachedQuestions.length ? cachedQuestions : defaultQuestions).sort(
-    (a, b) => (a.order || 0) - (b.order || 0),
-  );
-
-  questionsAdmin.innerHTML = '';
-
-  questions.forEach((q) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'question-admin';
-    wrapper.dataset.id = q.id;
-    wrapper.innerHTML = `
-      <div class="question-admin__header">
-        <div>
-          <p class="eyebrow">${q.id}</p>
-          <h4>${q.text}</h4>
-        </div>
-        <div class="question-actions">
-          <button class="btn ghost" type="button" data-action="save">Guardar</button>
-          <button class="btn danger" type="button" data-action="delete">Eliminar</button>
-        </div>
-      </div>
-      <div class="grid two-cols">
-        <label class="field">
-          <span>Título</span>
-          <input type="text" class="qa-text" value="${q.text || ''}">
-        </label>
-        <label class="field">
-          <span>Tipo</span>
-          <select class="qa-type">
-            <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>Escala numérica</option>
-            <option value="text" ${q.type === 'text' ? 'selected' : ''}>Texto</option>
-          </select>
-        </label>
-      </div>
-      <div class="grid two-cols">
-        <label class="field">
-          <span>Escala máx. (solo numérica)</span>
-          <input type="number" class="qa-scale" min="2" max="10" value="${q.scaleMax || 10}" ${q.type !== 'rating' ? 'disabled' : ''}>
-        </label>
-        <label class="field">
-          <span>Obligatoria</span>
-          <select class="qa-required">
-            <option value="true" ${q.required ? 'selected' : ''}>Sí</option>
-            <option value="false" ${!q.required ? 'selected' : ''}>No</option>
-          </select>
-        </label>
-      </div>
-      <label class="field">
-        <span>Orden</span>
-        <input type="number" class="qa-order" min="1" value="${q.order || 1}">
-      </label>
-      <p class="muted qa-feedback"></p>
-    `;
-    questionsAdmin.appendChild(wrapper);
-  });
-};
-
-const saveQuestion = async (id, payload) => {
-  await setDoc(doc(db, 'questions', id), payload, { merge: true });
-};
-
 const renderComments = () => {
   const filterText = searchInput.value.trim().toLowerCase();
   const textQuestion = getTextQuestions()[0];
@@ -388,6 +340,42 @@ const exportCSV = () => {
   URL.revokeObjectURL(url);
 };
 
+const renderInsights = () => {
+  const ratingQuestions = getRatingQuestions();
+  insightsList.innerHTML = '';
+
+  if (!ratingQuestions.length) {
+    insightsList.innerHTML = '<p class="muted">No hay datos para analizar.</p>';
+    return;
+  }
+
+  ratingQuestions.forEach((question) => {
+    const values = getNumericValues(question.id);
+    const highShare = calculatePercent(values, (n) => n >= 8);
+    const lowShare = calculatePercent(values, (n) => n <= 4);
+    const median = calculateMedian(values);
+    const mode = calculateMode(values);
+    const max = values.length ? Math.max(...values) : '-';
+    const min = values.length ? Math.min(...values) : '-';
+
+    const card = document.createElement('article');
+    card.className = 'insight-card';
+    card.innerHTML = `
+      <header>
+        <p class="eyebrow">${question.id}</p>
+        <h4>${question.text}</h4>
+      </header>
+      <ul>
+        <li><strong>Mediana:</strong> ${median}</li>
+        <li><strong>Moda:</strong> ${mode.value}${mode.count ? ` (${mode.count} votos)` : ''}</li>
+        <li><strong>Altos (8-10):</strong> ${highShare} · <strong>Bajos (1-4):</strong> ${lowShare}</li>
+        <li><strong>Máximo:</strong> ${max} · <strong>Mínimo:</strong> ${min}</li>
+      </ul>
+    `;
+    insightsList.appendChild(card);
+  });
+};
+
 const ensureAdminClaim = async () => {
   const token = await auth.currentUser?.getIdTokenResult?.();
   if (token?.claims?.admin) return true;
@@ -412,102 +400,6 @@ refreshBtn.addEventListener('click', async () => {
   refreshBtn.disabled = true;
   await loadDashboardData();
   refreshBtn.disabled = false;
-});
-
-questionType.addEventListener('change', () => {
-  scaleField.classList.toggle('hidden', questionType.value !== 'rating');
-});
-
-questionsAdmin.addEventListener('change', (event) => {
-  if (!event.target.classList.contains('qa-type')) return;
-  const card = event.target.closest('.question-admin');
-  const scaleInput = card?.querySelector('.qa-scale');
-  if (scaleInput) scaleInput.disabled = event.target.value !== 'rating';
-});
-
-questionForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  questionFeedback.textContent = '';
-
-  const payload = {
-    text: questionText.value.trim(),
-    type: questionType.value,
-    required: questionRequired.value === 'true',
-    order: Number(questionOrder.value) || 1,
-    scaleMax: Number(questionScale.value) || 10,
-  };
-
-  if (!payload.text) {
-    questionFeedback.textContent = 'Ingresa el texto de la pregunta.';
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, 'questions'), payload);
-    questionFeedback.textContent = 'Pregunta guardada correctamente.';
-    questionForm.reset();
-    scaleField.classList.remove('hidden');
-    await loadDashboardData();
-  } catch (error) {
-    console.error('No se pudo guardar la pregunta', error);
-    questionFeedback.textContent = 'Hubo un error al guardar.';
-  }
-});
-
-questionsAdmin.addEventListener('click', async (event) => {
-  const action = event.target.dataset.action;
-  if (!action) return;
-
-  const card = event.target.closest('.question-admin');
-  const id = card?.dataset.id;
-  const textInput = card.querySelector('.qa-text');
-  const typeSelect = card.querySelector('.qa-type');
-  const scaleInput = card.querySelector('.qa-scale');
-  const requiredSelect = card.querySelector('.qa-required');
-  const orderInput = card.querySelector('.qa-order');
-  const cardFeedback = card.querySelector('.qa-feedback');
-
-  const payload = {
-    text: textInput.value.trim(),
-    type: typeSelect.value,
-    scaleMax: Math.min(Math.max(Number(scaleInput.value) || 10, 2), 10),
-    required: requiredSelect.value === 'true',
-    order: Math.max(Number(orderInput.value) || 1, 1),
-  };
-
-  cardFeedback.textContent = '';
-
-  if (!id) return;
-
-  if (!payload.text) {
-    cardFeedback.textContent = 'Escribe el título de la pregunta.';
-    return;
-  }
-
-  event.target.disabled = true;
-  if (action === 'delete' && !confirm('¿Eliminar esta pregunta del catálogo?')) {
-    event.target.disabled = false;
-    return;
-  }
-
-  try {
-    if (action === 'save') {
-      if (payload.type !== 'rating') delete payload.scaleMax;
-      await saveQuestion(id, payload);
-      cardFeedback.textContent = 'Guardado. La encuesta mostrará esta versión.';
-      setQuestionFeedbackMessage('Pregunta actualizada correctamente.');
-    } else if (action === 'delete') {
-      await deleteDoc(doc(db, 'questions', id));
-      cardFeedback.textContent = 'Pregunta eliminada.';
-      setQuestionFeedbackMessage('Pregunta eliminada del catálogo.');
-    }
-    await loadDashboardData();
-  } catch (error) {
-    console.error('No se pudo actualizar la pregunta', error);
-    cardFeedback.textContent = 'No se pudo completar la acción.';
-  } finally {
-    event.target.disabled = false;
-  }
 });
 
 pinFormAdmin.addEventListener('submit', async (event) => {
