@@ -52,6 +52,14 @@
           <h3 id="avgQ2">-</h3>
         </article>
         <article class="card stat">
+          <p class="label">Promedio Pregunta 3</p>
+          <h3 id="avgQ3">-</h3>
+        </article>
+        <article class="card stat">
+          <p class="label">Promedio Pregunta 4</p>
+          <h3 id="avgQ4">-</h3>
+        </article>
+        <article class="card stat">
           <p class="label">Moda Pregunta 1</p>
           <h3 id="modeQ1">-</h3>
           <p class="muted" id="modeQ1Count"></p>
@@ -62,12 +70,30 @@
           <p class="muted" id="modeQ2Count"></p>
         </article>
         <article class="card stat">
+          <p class="label">Moda Pregunta 3</p>
+          <h3 id="modeQ3">-</h3>
+          <p class="muted" id="modeQ3Count"></p>
+        </article>
+        <article class="card stat">
+          <p class="label">Moda Pregunta 4</p>
+          <h3 id="modeQ4">-</h3>
+          <p class="muted" id="modeQ4Count"></p>
+        </article>
+        <article class="card stat">
           <p class="label">Mediana Pregunta 1</p>
           <h3 id="medianQ1">-</h3>
         </article>
         <article class="card stat">
           <p class="label">Mediana Pregunta 2</p>
           <h3 id="medianQ2">-</h3>
+        </article>
+        <article class="card stat">
+          <p class="label">Mediana Pregunta 3</p>
+          <h3 id="medianQ3">-</h3>
+        </article>
+        <article class="card stat">
+          <p class="label">Mediana Pregunta 4</p>
+          <h3 id="medianQ4">-</h3>
         </article>
         <article class="card stat">
           <p class="label">% Favorables P1 (8-10)</p>
@@ -78,6 +104,16 @@
           <p class="label">% Favorables P2 (8-10)</p>
           <h3 id="positiveQ2">-</h3>
           <p class="muted" id="detractorsQ2"></p>
+        </article>
+        <article class="card stat">
+          <p class="label">% Favorables P3 (8-10)</p>
+          <h3 id="positiveQ3">-</h3>
+          <p class="muted" id="detractorsQ3"></p>
+        </article>
+        <article class="card stat">
+          <p class="label">% Favorables P4 (8-10)</p>
+          <h3 id="positiveQ4">-</h3>
+          <p class="muted" id="detractorsQ4"></p>
         </article>
       </div>
 
@@ -106,6 +142,20 @@
           </div>
           <canvas id="chartQ2" height="240"></canvas>
         </article>
+        <article class="card">
+          <div class="card-header">
+            <h3 id="chartQ3Title">Grafica Pregunta 3</h3>
+            <small class="muted">Conteo 1-10</small>
+          </div>
+          <canvas id="chartQ3" height="240"></canvas>
+        </article>
+        <article class="card">
+          <div class="card-header">
+            <h3 id="chartQ4Title">Grafica Pregunta 4</h3>
+            <small class="muted">Conteo 1-10</small>
+          </div>
+          <canvas id="chartQ4" height="240"></canvas>
+        </article>
       </div>
 
       <section class="card detail">
@@ -133,8 +183,8 @@
       <section class="card comments">
         <div class="card-header">
           <div>
-            <p class="eyebrow">Comentarios Pregunta 3 </p>
-            <h3>Respuestas </h3>
+            <p class="eyebrow">Comentarios abiertos</p>
+            <h3>Respuestas</h3>
           </div>
           <input type="search" id="searchInput" placeholder="Buscar texto..." aria-label="Buscar comentarios">
         </div>

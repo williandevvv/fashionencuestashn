@@ -25,16 +25,28 @@ const loginCard = document.getElementById('loginCard');
 const totalResponsesEl = document.getElementById('totalResponses');
 const avgQ1El = document.getElementById('avgQ1');
 const avgQ2El = document.getElementById('avgQ2');
+const avgQ3El = document.getElementById('avgQ3');
+const avgQ4El = document.getElementById('avgQ4');
 const modeQ1El = document.getElementById('modeQ1');
 const modeQ1CountEl = document.getElementById('modeQ1Count');
 const modeQ2El = document.getElementById('modeQ2');
 const modeQ2CountEl = document.getElementById('modeQ2Count');
+const modeQ3El = document.getElementById('modeQ3');
+const modeQ3CountEl = document.getElementById('modeQ3Count');
+const modeQ4El = document.getElementById('modeQ4');
+const modeQ4CountEl = document.getElementById('modeQ4Count');
 const medianQ1El = document.getElementById('medianQ1');
 const medianQ2El = document.getElementById('medianQ2');
+const medianQ3El = document.getElementById('medianQ3');
+const medianQ4El = document.getElementById('medianQ4');
 const positiveQ1El = document.getElementById('positiveQ1');
 const positiveQ2El = document.getElementById('positiveQ2');
+const positiveQ3El = document.getElementById('positiveQ3');
+const positiveQ4El = document.getElementById('positiveQ4');
 const detractorsQ1El = document.getElementById('detractorsQ1');
 const detractorsQ2El = document.getElementById('detractorsQ2');
+const detractorsQ3El = document.getElementById('detractorsQ3');
+const detractorsQ4El = document.getElementById('detractorsQ4');
 const commentsList = document.getElementById('commentsList');
 const searchInput = document.getElementById('searchInput');
 const exportBtn = document.getElementById('exportBtn');
@@ -42,6 +54,8 @@ const refreshBtn = document.getElementById('refreshBtn');
 const detailGrid = document.getElementById('detailGrid');
 const chartQ1Title = document.getElementById('chartQ1Title');
 const chartQ2Title = document.getElementById('chartQ2Title');
+const chartQ3Title = document.getElementById('chartQ3Title');
+const chartQ4Title = document.getElementById('chartQ4Title');
 const pinFormAdmin = document.getElementById('pinForm');
 const currentPin = document.getElementById('currentPin');
 const newPin = document.getElementById('newPin');
@@ -54,14 +68,25 @@ const DEFAULT_ACCESS_PIN = 'FCHN2025@';
 
 let chartQ1;
 let chartQ2;
+let chartQ3;
+let chartQ4;
 let cachedResponses = [];
 let cachedQuestions = [];
 let currentAccessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
-  { id: 'q1', text: 'Califica tu experiencia general (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 1 },
-  { id: 'q2', text: '¿Qué tan probable es que nos recomiendes? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
-  { id: 'q3', text: 'Comentarios', type: 'text', required: false, order: 3 },
+  {
+    id: 'q1',
+    text: '¿Cómo evalúa la fiesta navideña proporcionada por la empresa? (1 - 10)',
+    type: 'rating',
+    required: true,
+    scaleMax: 10,
+    order: 1,
+  },
+  { id: 'q2', text: '¿Cómo evalúa la animación (Banda y DJ)? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
+  { id: 'q3', text: '¿Cómo evalúa la comida? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 3 },
+  { id: 'q4', text: '¿Cómo evalúa el salón? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 4 },
+  { id: 'q5', text: 'Comentarios adicionales (opcional, máx. 250 caracteres)', type: 'text', required: false, maxLength: 250, order: 5 },
 ];
 
 const sanitizePinValue = (value) => value.trim();
@@ -163,6 +188,13 @@ const extractAnswer = (response, questionId) => {
   return response[questionId];
 };
 
+const ratingStatElements = [
+  { avg: avgQ1El, mode: modeQ1El, modeCount: modeQ1CountEl, median: medianQ1El, positive: positiveQ1El, detractors: detractorsQ1El },
+  { avg: avgQ2El, mode: modeQ2El, modeCount: modeQ2CountEl, median: medianQ2El, positive: positiveQ2El, detractors: detractorsQ2El },
+  { avg: avgQ3El, mode: modeQ3El, modeCount: modeQ3CountEl, median: medianQ3El, positive: positiveQ3El, detractors: detractorsQ3El },
+  { avg: avgQ4El, mode: modeQ4El, modeCount: modeQ4CountEl, median: medianQ4El, positive: positiveQ4El, detractors: detractorsQ4El },
+];
+
 const getNumericValues = (questionId) =>
   cachedResponses
     .map((response) => Number(extractAnswer(response, questionId)))
@@ -170,30 +202,32 @@ const getNumericValues = (questionId) =>
 
 const renderStats = () => {
   const ratings = getRatingQuestions();
-  const first = ratings[0];
-  const second = ratings[1];
-
-  const q1Values = first ? getNumericValues(first.id) : [];
-  const q2Values = second ? getNumericValues(second.id) : [];
-
   totalResponsesEl.textContent = cachedResponses.length.toString();
-  avgQ1El.textContent = calculateAverage(q1Values);
-  avgQ2El.textContent = calculateAverage(q2Values);
 
-  const mode1 = calculateMode(q1Values);
-  const mode2 = calculateMode(q2Values);
-  modeQ1El.textContent = mode1.value;
-  modeQ1CountEl.textContent = mode1.count ? `${mode1.count} votos` : '';
-  modeQ2El.textContent = mode2.value;
-  modeQ2CountEl.textContent = mode2.count ? `${mode2.count} votos` : '';
+  ratingStatElements.forEach((elements, index) => {
+    if (!elements.avg || !elements.mode || !elements.median || !elements.positive || !elements.detractors) return;
+    const question = ratings[index];
+    if (!question) {
+      elements.avg.textContent = '-';
+      elements.mode.textContent = '-';
+      elements.modeCount.textContent = '';
+      elements.median.textContent = '-';
+      elements.positive.textContent = '-';
+      elements.detractors.textContent = '';
+      return;
+    }
 
-  medianQ1El.textContent = calculateMedian(q1Values);
-  medianQ2El.textContent = calculateMedian(q2Values);
+    const values = getNumericValues(question.id);
+    const mode = calculateMode(values);
 
-  positiveQ1El.textContent = calculatePercent(q1Values, (n) => n >= 8);
-  positiveQ2El.textContent = calculatePercent(q2Values, (n) => n >= 8);
-  detractorsQ1El.textContent = positiveQ1El.textContent === '-' ? '' : `Bajos (1-4): ${calculatePercent(q1Values, (n) => n <= 4)}`;
-  detractorsQ2El.textContent = positiveQ2El.textContent === '-' ? '' : `Bajos (1-4): ${calculatePercent(q2Values, (n) => n <= 4)}`;
+    elements.avg.textContent = calculateAverage(values);
+    elements.mode.textContent = mode.value;
+    elements.modeCount.textContent = mode.count ? `${mode.count} votos` : '';
+    elements.median.textContent = calculateMedian(values);
+    elements.positive.textContent = calculatePercent(values, (n) => n >= 8);
+    elements.detractors.textContent =
+      elements.positive.textContent === '-' ? '' : `Bajos (1-4): ${calculatePercent(values, (n) => n <= 4)}`;
+  });
 };
 
 const buildCounts = (values, scaleMax = 10) => {
@@ -206,15 +240,12 @@ const buildCounts = (values, scaleMax = 10) => {
 
 const renderCharts = () => {
   const ratings = getRatingQuestions();
-  const q1 = ratings[0];
-  const q2 = ratings[1];
-
-  chartQ1Title.textContent = q1 ? q1.text : 'Grafica Pregunta 1';
-  chartQ2Title.textContent = q2 ? q2.text : 'Grafica Pregunta 2';
-
-  const q1Counts = buildCounts(q1 ? getNumericValues(q1.id) : [], q1?.scaleMax || 10);
-  const q2Counts = buildCounts(q2 ? getNumericValues(q2.id) : [], q2?.scaleMax || 10);
-  const labels = q1Counts.map((c) => c.label);
+  const chartConfigs = [
+    { canvasId: 'chartQ1', titleEl: chartQ1Title, getInstance: () => chartQ1, setInstance: (chart) => (chartQ1 = chart) },
+    { canvasId: 'chartQ2', titleEl: chartQ2Title, getInstance: () => chartQ2, setInstance: (chart) => (chartQ2 = chart) },
+    { canvasId: 'chartQ3', titleEl: chartQ3Title, getInstance: () => chartQ3, setInstance: (chart) => (chartQ3 = chart) },
+    { canvasId: 'chartQ4', titleEl: chartQ4Title, getInstance: () => chartQ4, setInstance: (chart) => (chartQ4 = chart) },
+  ];
 
   const commonOptions = {
     responsive: true,
@@ -226,26 +257,30 @@ const renderCharts = () => {
     },
   };
 
-  const buildDataset = (counts) => ({
-    labels,
-    datasets: [
-      {
-        label: 'Conteo',
-        data: counts.map((c) => c.count),
-        backgroundColor: '#b08b73',
-        borderRadius: 8,
-      },
-    ],
+  chartConfigs.forEach((config, index) => {
+    const ctx = document.getElementById(config.canvasId);
+    if (!ctx || !config.titleEl || !config.getInstance || !config.setInstance) return;
+    const question = ratings[index];
+    config.titleEl.textContent = question ? question.text : `Gráfica Pregunta ${index + 1}`;
+
+    const counts = buildCounts(question ? getNumericValues(question.id) : [], question?.scaleMax || 10);
+    const labels = counts.map((c) => c.label);
+
+    const dataset = {
+      labels,
+      datasets: [
+        {
+          label: 'Conteo',
+          data: counts.map((c) => c.count),
+          backgroundColor: '#b08b73',
+          borderRadius: 8,
+        },
+      ],
+    };
+
+    if (config.getInstance()) config.getInstance().destroy();
+    config.setInstance(new Chart(ctx, { type: 'bar', data: dataset, options: commonOptions }));
   });
-
-  const ctx1 = document.getElementById('chartQ1');
-  const ctx2 = document.getElementById('chartQ2');
-
-  if (chartQ1) chartQ1.destroy();
-  if (chartQ2) chartQ2.destroy();
-
-  chartQ1 = new Chart(ctx1, { type: 'bar', data: buildDataset(q1Counts), options: commonOptions });
-  chartQ2 = new Chart(ctx2, { type: 'bar', data: buildDataset(q2Counts), options: commonOptions });
 };
 
 const renderDetail = () => {

@@ -29,9 +29,25 @@ let questions = [];
 let accessPin = '';
 
 const defaultQuestions = [
-  { id: 'q1', text: 'Califica tu experiencia general (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 1 },
-  { id: 'q2', text: '¿Qué tan probable es que nos recomiendes? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
-  { id: 'q3', text: 'Comentarios (opcional, máx. 250 caracteres)', type: 'text', required: false, maxLength: 250, order: 3 },
+  {
+    id: 'q1',
+    text: '¿Cómo evalúa la fiesta navideña proporcionada por la empresa? (1 - 10)',
+    type: 'rating',
+    required: true,
+    scaleMax: 10,
+    order: 1,
+  },
+  { id: 'q2', text: '¿Cómo evalúa la animación (Banda y DJ)? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 2 },
+  { id: 'q3', text: '¿Cómo evalúa la comida? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 3 },
+  { id: 'q4', text: '¿Cómo evalúa el salón? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 4 },
+  {
+    id: 'q5',
+    text: 'Comentarios adicionales (opcional, máx. 250 caracteres)',
+    type: 'text',
+    required: false,
+    maxLength: 250,
+    order: 5,
+  },
 ];
 
 const loadQuestions = async () => {
@@ -210,7 +226,9 @@ const handleSubmit = async (event) => {
     const payload = { answers, createdAt: serverTimestamp() };
     if (Number.isFinite(answers.q1)) payload.q1 = answers.q1;
     if (Number.isFinite(answers.q2)) payload.q2 = answers.q2;
-    if (answers.q3) payload.q3 = answers.q3;
+    if (Number.isFinite(answers.q3)) payload.q3 = answers.q3;
+    if (Number.isFinite(answers.q4)) payload.q4 = answers.q4;
+    if (answers.q5) payload.q5 = answers.q5;
     await addDoc(collection(db, 'responses'), payload);
     surveyState = 'sent';
     surveyForm.reset();
