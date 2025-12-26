@@ -9,9 +9,6 @@ import {
   getDocs,
   orderBy,
   query,
-  doc,
-  getDoc,
-  setDoc,
 } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 const loginForm = document.getElementById('loginForm');
@@ -56,15 +53,7 @@ const chartQ1Title = document.getElementById('chartQ1Title');
 const chartQ2Title = document.getElementById('chartQ2Title');
 const chartQ3Title = document.getElementById('chartQ3Title');
 const chartQ4Title = document.getElementById('chartQ4Title');
-const pinFormAdmin = document.getElementById('pinForm');
-const currentPin = document.getElementById('currentPin');
-const newPin = document.getElementById('newPin');
-const confirmPin = document.getElementById('confirmPin');
-const pinFeedback = document.getElementById('pinFeedback');
-const visibilityToggles = document.querySelectorAll('.toggle-visibility');
 const insightsList = document.getElementById('insightsList');
-
-const DEFAULT_ACCESS_PIN = 'FCHN2025@';
 
 let chartQ1;
 let chartQ2;
@@ -72,7 +61,6 @@ let chartQ3;
 let chartQ4;
 let cachedResponses = [];
 let cachedQuestions = [];
-let currentAccessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
   {
@@ -88,21 +76,6 @@ const defaultQuestions = [
   { id: 'q4', text: '¿Cómo evalúa el salón? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 4 },
   { id: 'q5', text: 'Comentarios adicionales (opcional, máx. 250 caracteres)', type: 'text', required: false, maxLength: 250, order: 5 },
 ];
-
-const sanitizePinValue = (value) => value.trim();
-
-const togglePasswordVisibility = (button) => {
-  const input = document.getElementById(button.dataset.target);
-  if (!input) return;
-  const showing = input.type === 'text';
-  input.type = showing ? 'password' : 'text';
-  button.setAttribute('aria-pressed', (!showing).toString());
-  button.textContent = showing ? '👁' : '🙈';
-};
-
-visibilityToggles.forEach((button) => {
-  button.addEventListener('click', () => togglePasswordVisibility(button));
-});
 
 const showDashboard = () => {
   loginCard.classList.add('hidden');
@@ -120,11 +93,6 @@ const fetchQuestions = async () => {
   if (!cachedQuestions.length) cachedQuestions = [...defaultQuestions];
 };
 
-const fetchAccessPin = async () => {
-  const pinDoc = await getDoc(doc(db, 'settings', 'access'));
-  currentAccessPin = pinDoc.exists() ? pinDoc.data()?.pin || DEFAULT_ACCESS_PIN : DEFAULT_ACCESS_PIN;
-};
-
 const fetchResponses = async () => {
   const snapshot = await getDocs(query(collection(db, 'responses'), orderBy('createdAt', 'desc')));
   cachedResponses = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -136,7 +104,7 @@ const fetchResponses = async () => {
 };
 
 const loadDashboardData = async () => {
-  await Promise.all([fetchQuestions(), fetchAccessPin()]);
+  await fetchQuestions();
   await fetchResponses();
 };
 
@@ -437,59 +405,6 @@ refreshBtn.addEventListener('click', async () => {
   refreshBtn.disabled = true;
   await loadDashboardData();
   refreshBtn.disabled = false;
-});
-
-pinFormAdmin.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  pinFeedback.textContent = '';
-
-  const currentValue = sanitizePinValue(currentPin.value);
-  const newValue = sanitizePinValue(newPin.value);
-  const confirmValue = sanitizePinValue(confirmPin.value);
-  const submitButton = pinFormAdmin.querySelector('button[type="submit"]');
-
-  if (!newValue) {
-    pinFeedback.textContent = 'Ingresa el nuevo PIN.';
-    return;
-  }
-
-  if (newValue.length < 4) {
-    pinFeedback.textContent = 'El PIN debe tener al menos 4 caracteres.';
-    return;
-  }
-
-  if (newValue !== confirmValue) {
-    pinFeedback.textContent = 'El nuevo PIN no coincide en la confirmación.';
-    return;
-  }
-
-  submitButton.disabled = true;
-  submitButton.textContent = 'Guardando...';
-
-  try {
-    await ensureAdminClaim();
-    await fetchAccessPin();
-
-    const expectedPin = currentAccessPin || DEFAULT_ACCESS_PIN;
-    if (expectedPin && currentValue !== expectedPin) {
-      pinFeedback.textContent = 'El PIN actual no coincide.';
-      return;
-    }
-
-    await setDoc(doc(db, 'settings', 'access'), { pin: newValue });
-    currentAccessPin = newValue;
-    pinFeedback.textContent = 'PIN actualizado. Usa este valor en la encuesta.';
-    pinFormAdmin.reset();
-  } catch (error) {
-    console.error('No se pudo actualizar el PIN', error);
-    pinFeedback.textContent =
-      error.code === 'permission-denied' || error.message === 'missing-admin-claim'
-        ? 'No tienes permisos para actualizar el PIN. Revisa las reglas de Firestore.'
-        : 'Error al guardar el PIN.';
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = 'Actualizar PIN';
-  }
 });
 
 onAuthStateChanged(auth, async (user) => {

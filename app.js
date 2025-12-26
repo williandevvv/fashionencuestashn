@@ -4,30 +4,21 @@ import {
   collection,
   serverTimestamp,
   getDocs,
-  getDoc,
   query,
   orderBy,
-  doc,
 } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-const pinForm = document.getElementById('pinForm');
-const pinInput = document.getElementById('pinInput');
-const pinButton = document.getElementById('pinButton');
-const pinError = document.getElementById('pinError');
 const statusPill = document.getElementById('status-pill');
 const surveyCard = document.getElementById('survey-card');
 const surveyForm = document.getElementById('surveyForm');
 const questionsContainer = document.getElementById('questionsContainer');
-const pinHint = document.getElementById('pinHint');
 const submitBtn = document.getElementById('submitBtn');
 const resetBtn = document.getElementById('resetBtn');
 const successMsg = document.getElementById('successMsg');
 const errorMsg = document.getElementById('errorMsg');
 
-let surveyState = 'locked';
+let surveyState = 'loading';
 let questions = [];
-const DEFAULT_ACCESS_PIN = 'FCHN2025';
-let accessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
   {
@@ -57,12 +48,6 @@ const loadQuestions = async () => {
   if (!questions.length) questions = [...defaultQuestions];
 };
 
-const loadAccessPin = async () => {
-  const pinDoc = await getDoc(doc(db, 'settings', 'access'));
-  accessPin = pinDoc.exists() ? pinDoc.data()?.pin || DEFAULT_ACCESS_PIN : DEFAULT_ACCESS_PIN;
-  pinHint.textContent = 'PIN administrado desde el panel. Solicítalo a tu coordinador.';
-};
-
 const setStatusPill = (text, variant) => {
   statusPill.textContent = text;
   statusPill.className = `pill ${variant}`;
@@ -83,18 +68,9 @@ const unlockSurvey = () => {
   surveyState = 'ready';
   setFormDisabled(false);
   setStatusPill('Listo para responder', 'ready');
-  pinError.textContent = '';
   successMsg.textContent = '';
   errorMsg.textContent = '';
 };
-
-const lockSurvey = () => {
-  surveyState = 'locked';
-  setFormDisabled(true);
-  setStatusPill('Bloqueado', 'locked');
-};
-
-const isValidPin = (value) => value.trim() === accessPin;
 
 const renderQuestions = () => {
   const items = (questions.length ? questions : defaultQuestions).sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -143,18 +119,6 @@ const renderQuestions = () => {
   });
 };
 
-const validatePin = () => {
-  if (!isValidPin(pinInput.value)) {
-    pinError.textContent = 'PIN incorrecto. Inténtalo de nuevo.';
-    lockSurvey();
-    pinInput.focus();
-    return false;
-  }
-  unlockSurvey();
-  getControls()[0]?.focus();
-  return true;
-};
-
 const resetForm = () => {
   surveyForm.reset();
   questionsContainer.querySelectorAll('.char-counter span:first-child').forEach((el) => {
@@ -162,10 +126,8 @@ const resetForm = () => {
   });
   successMsg.textContent = '';
   errorMsg.textContent = '';
-  pinError.textContent = '';
-  lockSurvey();
-  pinInput.value = '';
-  pinInput.focus();
+  unlockSurvey();
+  getControls()[0]?.focus();
 };
 
 const sanitizeNumber = (value, scaleMax = 10) => {
@@ -177,14 +139,12 @@ const handleSubmit = async (event) => {
   event.preventDefault();
 
   if (surveyState === 'sent') {
-    errorMsg.textContent = 'Esta respuesta ya fue enviada. Ingresa el PIN para responder de nuevo.';
-    pinInput.focus();
+    errorMsg.textContent = 'Esta respuesta ya fue enviada. Pulsa "Responder otra vez" para enviar una nueva.';
     return;
   }
 
   if (surveyState !== 'ready') {
-    errorMsg.textContent = 'Debes ingresar el PIN para responder.';
-    pinInput.focus();
+    errorMsg.textContent = 'La encuesta se está cargando. Espera un momento.';
     return;
   }
 
@@ -237,9 +197,8 @@ const handleSubmit = async (event) => {
     setFormDisabled(true);
     setStatusPill('Enviado ✅', 'sent');
     successMsg.textContent = 'Gracias por participar';
-    pinInput.value = '';
-    pinInput.focus();
-    document.getElementById('pin-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    resetBtn.disabled = false;
+    getControls()[0]?.blur();
   } catch (error) {
     console.error('Error al guardar', error);
     surveyState = 'ready';
@@ -255,22 +214,6 @@ const handleSubmit = async (event) => {
   }
 };
 
-pinForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  validatePin();
-});
-
-pinInput.addEventListener('input', () => {
-  if (pinError.textContent) pinError.textContent = '';
-
-  if (surveyState === 'ready' || surveyState === 'sending') return;
-
-  if (isValidPin(pinInput.value)) {
-    unlockSurvey();
-    getControls()[0]?.focus();
-  }
-});
-
 resetBtn.addEventListener('click', resetForm);
 surveyForm.addEventListener('submit', handleSubmit);
 
@@ -278,12 +221,12 @@ const bootstrap = async () => {
   try {
     setStatusPill('Cargando...', 'sending');
     setFormDisabled(true);
-    await Promise.all([loadAccessPin(), loadQuestions()]);
+    await loadQuestions();
     renderQuestions();
-    lockSurvey();
+    unlockSurvey();
   } catch (error) {
     console.error('No se pudieron cargar las preguntas', error);
-    pinError.textContent = 'No se pudieron cargar las preguntas. Intenta recargar la página.';
+    errorMsg.textContent = 'No se pudieron cargar las preguntas. Intenta recargar la página.';
   }
 };
 

@@ -3,7 +3,7 @@
 Encuesta anónima con panel de administración (Firebase Auth + Firestore) para las marcas **Fashion Collection**, **Variedades Miss Ceci** y **Fashion Collection Fem**.
 
 ## Estructura
-- `/index.html`, `/styles.css`, `/app.js`: encuesta pública con PIN universal.
+- `/index.html`, `/styles.css`, `/app.js`: encuesta pública libre (no requiere PIN).
 - `/firebase.js`: inicialización compartida de Firebase (rellena `firebaseConfig`).
 - `/paneladmfc25/`: panel de administración (login, dashboard, exportación CSV, reglas sugeridas).
 
@@ -56,13 +56,13 @@ Encuesta anónima con panel de administración (Firebase Auth + Firestore) para 
 
 ## Cómo usar
 - **Encuesta pública**
-  - Ingresa el PIN `FCHN2025@` para desbloquear el formulario. Las preguntas 1 y 2 son obligatorias (escala 1-10) y la 3 es opcional (máx. 250 caracteres).
-  - Al enviar se crea un documento anónimo en `responses` con `q1`, `q2`, `q3` y `createdAt` (timestamp del servidor).
+  - Carga `index.html` y responde directamente las preguntas (escala 1-10 y un comentario opcional).
+  - Al enviar se crea un documento anónimo en `responses` con los IDs de pregunta (`q1` a `q5`) y `createdAt` (timestamp del servidor).
 - **Panel admin `/paneladmfc25`**
   - Inicia sesión con el usuario de Firebase Auth.
-  - Verás totales, promedios, modas, gráficos (Chart.js), comentarios filtrables y botón de exportar CSV.
+  - Verás totales, promedios, modas, gráficos (Chart.js), comentarios filtrables y botón de exportar CSV. Solo usuarios con el claim `admin` pueden leer los resultados.
   - En la sección “Configurar Firebase” hay reglas recomendadas y un botón para probar la conexión (lectura de `responses`).
 
 ## Notas de privacidad
 - No se solicita ni guarda información personal en la encuesta.
-- El PIN se pide en cada respuesta y no se almacena en el navegador.
+- Las respuestas se almacenan sin datos identificables; solo el panel admin puede leerlas.
