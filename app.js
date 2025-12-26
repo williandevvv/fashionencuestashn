@@ -26,7 +26,7 @@ const errorMsg = document.getElementById('errorMsg');
 
 let surveyState = 'locked';
 let questions = [];
-const DEFAULT_ACCESS_PIN = 'FCHN2025@';
+const DEFAULT_ACCESS_PIN = 'FCHN2025';
 let accessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
@@ -43,10 +43,10 @@ const defaultQuestions = [
   { id: 'q4', text: '¿Cómo evalúa el salón? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 4 },
   {
     id: 'q5',
-    text: 'En que podríamos mejorar? ( máx. 250 caracteres)',
+    text: 'En que podríamos mejorar ? ( máximo 500 caracteres)',
     type: 'text',
     required: true,
-    maxLength: 250,
+    maxLength: 500,
     order: 5,
   },
 ];
