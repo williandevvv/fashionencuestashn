@@ -26,7 +26,8 @@ const errorMsg = document.getElementById('errorMsg');
 
 let surveyState = 'locked';
 let questions = [];
-let accessPin = '';
+const DEFAULT_ACCESS_PIN = 'FCHN2025@';
+let accessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
   {
@@ -58,10 +59,8 @@ const loadQuestions = async () => {
 
 const loadAccessPin = async () => {
   const pinDoc = await getDoc(doc(db, 'settings', 'access'));
-  accessPin = pinDoc.exists() ? pinDoc.data()?.pin || '' : '';
-  pinHint.textContent = accessPin
-    ? 'PIN administrado desde el panel. Solicítalo a tu coordinador.'
-    : 'Si no tienes el PIN, pídeselo al administrador.';
+  accessPin = pinDoc.exists() ? pinDoc.data()?.pin || DEFAULT_ACCESS_PIN : DEFAULT_ACCESS_PIN;
+  pinHint.textContent = 'PIN administrado desde el panel. Solicítalo a tu coordinador.';
 };
 
 const setStatusPill = (text, variant) => {
@@ -95,7 +94,7 @@ const lockSurvey = () => {
   setStatusPill('Bloqueado', 'locked');
 };
 
-const isValidPin = (value) => value.trim() === (accessPin || 'FCHN2025@');
+const isValidPin = (value) => value.trim() === accessPin;
 
 const renderQuestions = () => {
   const items = (questions.length ? questions : defaultQuestions).sort((a, b) => (a.order || 0) - (b.order || 0));
