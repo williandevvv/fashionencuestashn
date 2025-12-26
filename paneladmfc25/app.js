@@ -64,7 +64,7 @@ const pinFeedback = document.getElementById('pinFeedback');
 const visibilityToggles = document.querySelectorAll('.toggle-visibility');
 const insightsList = document.getElementById('insightsList');
 
-const DEFAULT_ACCESS_PIN = 'FCHN2025';
+const DEFAULT_ACCESS_PIN = 'FCHN2025@';
 
 let chartQ1;
 let chartQ2;
@@ -448,11 +448,6 @@ pinFormAdmin.addEventListener('submit', async (event) => {
   const confirmValue = sanitizePinValue(confirmPin.value);
   const submitButton = pinFormAdmin.querySelector('button[type="submit"]');
 
-  if (currentAccessPin && currentValue !== currentAccessPin) {
-    pinFeedback.textContent = 'El PIN actual no coincide.';
-    return;
-  }
-
   if (!newValue) {
     pinFeedback.textContent = 'Ingresa el nuevo PIN.';
     return;
@@ -472,6 +467,15 @@ pinFormAdmin.addEventListener('submit', async (event) => {
   submitButton.textContent = 'Guardando...';
 
   try {
+    await ensureAdminClaim();
+    await fetchAccessPin();
+
+    const expectedPin = currentAccessPin || DEFAULT_ACCESS_PIN;
+    if (expectedPin && currentValue !== expectedPin) {
+      pinFeedback.textContent = 'El PIN actual no coincide.';
+      return;
+    }
+
     await setDoc(doc(db, 'settings', 'access'), { pin: newValue });
     currentAccessPin = newValue;
     pinFeedback.textContent = 'PIN actualizado. Usa este valor en la encuesta.';
@@ -479,7 +483,7 @@ pinFormAdmin.addEventListener('submit', async (event) => {
   } catch (error) {
     console.error('No se pudo actualizar el PIN', error);
     pinFeedback.textContent =
-      error.code === 'permission-denied'
+      error.code === 'permission-denied' || error.message === 'missing-admin-claim'
         ? 'No tienes permisos para actualizar el PIN. Revisa las reglas de Firestore.'
         : 'Error al guardar el PIN.';
   } finally {
