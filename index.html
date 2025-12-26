@@ -29,7 +29,12 @@
       <h2>Ingresa el PIN para responder</h2>
       <p class="muted">PIN requerido para mantener la encuesta segura.</p>
       <form id="pinForm" class="pin-form" autocomplete="off">
-        <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
+        <div class="pin-input-group">
+          <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
+          <button type="button" id="togglePinVisibility" class="pin-visibility" aria-label="Mostrar PIN" title="Mostrar PIN">
+            👁️
+          </button>
+        </div>
         <button type="submit" id="pinButton" class="btn">Desbloquear encuesta</button>
       </form>
       <p class="pin-hint" id="pinHint"></p>
