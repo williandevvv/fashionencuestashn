@@ -13,6 +13,7 @@ import {
 const pinForm = document.getElementById('pinForm');
 const pinInput = document.getElementById('pinInput');
 const pinButton = document.getElementById('pinButton');
+const togglePinVisibility = document.getElementById('togglePinVisibility');
 const pinError = document.getElementById('pinError');
 const statusPill = document.getElementById('status-pill');
 const surveyCard = document.getElementById('survey-card');
@@ -96,6 +97,13 @@ const lockSurvey = () => {
 
 const isValidPin = (value) => value.trim() === accessPin;
 
+const setPinVisibility = (show) => {
+  pinInput.type = show ? 'text' : 'password';
+  togglePinVisibility.textContent = show ? '🙈' : '👁️';
+  togglePinVisibility.setAttribute('aria-label', show ? 'Ocultar PIN' : 'Mostrar PIN');
+  togglePinVisibility.setAttribute('title', show ? 'Ocultar PIN' : 'Mostrar PIN');
+};
+
 const renderQuestions = () => {
   const items = (questions.length ? questions : defaultQuestions).sort((a, b) => (a.order || 0) - (b.order || 0));
   questionsContainer.innerHTML = '';
@@ -165,6 +173,7 @@ const resetForm = () => {
   pinError.textContent = '';
   lockSurvey();
   pinInput.value = '';
+  setPinVisibility(false);
   pinInput.focus();
 };
 
@@ -261,6 +270,13 @@ pinForm.addEventListener('submit', (event) => {
 });
 
 pinInput.addEventListener('input', () => {
+  const { selectionStart, selectionEnd } = pinInput;
+  const upperValue = pinInput.value.toUpperCase();
+  if (pinInput.value !== upperValue) {
+    pinInput.value = upperValue;
+    pinInput.setSelectionRange(selectionStart, selectionEnd);
+  }
+
   if (pinError.textContent) pinError.textContent = '';
 
   if (surveyState === 'ready' || surveyState === 'sending') return;
@@ -269,6 +285,13 @@ pinInput.addEventListener('input', () => {
     unlockSurvey();
     getControls()[0]?.focus();
   }
+});
+
+togglePinVisibility.addEventListener('click', () => {
+  const show = pinInput.type === 'password';
+  setPinVisibility(show);
+  pinInput.focus();
+  pinInput.setSelectionRange(pinInput.value.length, pinInput.value.length);
 });
 
 resetBtn.addEventListener('click', resetForm);

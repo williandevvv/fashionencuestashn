@@ -162,6 +162,33 @@ textarea {
   gap: 0.75rem;
   flex-wrap: wrap;
 }
+.pin-input-group {
+  position: relative;
+  flex: 1 1 220px;
+}
+
+.pin-input-group input {
+  padding-right: 3rem;
+}
+
+.pin-visibility {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+
+.pin-visibility:hover,
+.pin-visibility:focus-visible {
+  color: var(--accent-strong);
+}
 
 .btn {
   background: linear-gradient(135deg, var(--accent-strong), #a0735c);
