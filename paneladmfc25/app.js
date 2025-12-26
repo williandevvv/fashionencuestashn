@@ -50,7 +50,7 @@ const pinFeedback = document.getElementById('pinFeedback');
 const visibilityToggles = document.querySelectorAll('.toggle-visibility');
 const insightsList = document.getElementById('insightsList');
 
-const DEFAULT_ACCESS_PIN = 'FCHN2025@';
+const DEFAULT_ACCESS_PIN = 'FCHN2025';
 
 let chartQ1;
 let chartQ2;
