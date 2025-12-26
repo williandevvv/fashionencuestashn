@@ -95,7 +95,7 @@ const lockSurvey = () => {
   setStatusPill('Bloqueado', 'locked');
 };
 
-const isValidPin = (value) => value.trim() === (accessPin || 'FCHN2025');
+const isValidPin = (value) => value.trim() === (accessPin || 'FCHN2025@');
 
 const renderQuestions = () => {
   const items = (questions.length ? questions : defaultQuestions).sort((a, b) => (a.order || 0) - (b.order || 0));
