@@ -43,7 +43,7 @@ const defaultQuestions = [
   { id: 'q4', text: '¿Cómo evalúa el salón? (1 - 10)', type: 'rating', required: true, scaleMax: 10, order: 4 },
   {
     id: 'q5',
-    text: 'En que podríamos mejorar ? ( máximo 500 caracteres)',
+    text: '¿En que podríamos mejorar ? ( máximo 500 caracteres)',
     type: 'text',
     required: true,
     maxLength: 500,
