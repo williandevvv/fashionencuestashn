@@ -21,19 +21,8 @@
       <div>
         <p class="eyebrow">Encuesta anónima</p>
         <h1>Queremos saber tu opinión</h1>
-        <p class="lede">Responde cuatro preguntas rápidas (1 al 10) y agrega un comentario opcional. Usamos tus respuestas para mejorar.</p>
+        <p class="lede">Responde cuatro preguntas rápidas (1 al 10) y agrega un comentario opcional. No necesitas permisos para contestar; solo el equipo administrador puede ver los resultados.</p>
       </div>
-    </section>
-
-    <section class="card" id="pin-card">
-      <h2>Ingresa el PIN para responder</h2>
-      <p class="muted">PIN requerido para mantener la encuesta segura.</p>
-      <form id="pinForm" class="pin-form" autocomplete="off">
-        <input type="password" id="pinInput" placeholder="PIN" autocomplete="off" aria-label="PIN de acceso" required>
-        <button type="submit" id="pinButton" class="btn">Desbloquear encuesta</button>
-      </form>
-      <p class="pin-hint" id="pinHint"></p>
-      <p class="error" id="pinError" role="alert"></p>
     </section>
 
     <section class="card" id="survey-card" aria-live="polite">
@@ -44,7 +33,7 @@
         </div>
         <span class="pill" id="status-pill">Cargando...</span>
       </div>
-      <p class="muted">Por favor califica tu satisfacción en una escala de 1 (muy malo) a 10 (excelente).</p>
+      <p class="muted">Por favor califica tu satisfacción en una escala de 1 (muy malo) a 10 (excelente). Las respuestas son anónimas y solo el panel admin puede leer los resultados.</p>
       <form id="surveyForm" novalidate>
         <div id="questionsContainer" class="questions"></div>
         <div class="actions">
