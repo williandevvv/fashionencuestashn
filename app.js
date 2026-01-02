@@ -27,7 +27,7 @@ const errorMsg = document.getElementById('errorMsg');
 
 let surveyState = 'locked';
 let questions = [];
-const DEFAULT_ACCESS_PIN = 'FCHN2025';
+const DEFAULT_ACCESS_PIN = 'FCHN2025@@@@';
 let accessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
