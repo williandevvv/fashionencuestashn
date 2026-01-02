@@ -15,6 +15,7 @@ const pinInput = document.getElementById('pinInput');
 const pinButton = document.getElementById('pinButton');
 const togglePinVisibility = document.getElementById('togglePinVisibility');
 const pinError = document.getElementById('pinError');
+const closureScreen = document.getElementById('closure-screen');
 const statusPill = document.getElementById('status-pill');
 const surveyCard = document.getElementById('survey-card');
 const surveyForm = document.getElementById('surveyForm');
@@ -25,9 +26,10 @@ const resetBtn = document.getElementById('resetBtn');
 const successMsg = document.getElementById('successMsg');
 const errorMsg = document.getElementById('errorMsg');
 
-let surveyState = 'locked';
+const SURVEY_CLOSED = true;
+let surveyState = SURVEY_CLOSED ? 'closed' : 'locked';
 let questions = [];
-const DEFAULT_ACCESS_PIN = '2026';
+const DEFAULT_ACCESS_PIN = '2026@@';
 let accessPin = DEFAULT_ACCESS_PIN;
 
 const defaultQuestions = [
@@ -71,6 +73,12 @@ const setStatusPill = (text, variant) => {
 
 const getControls = () => Array.from(questionsContainer.querySelectorAll('input, select, textarea'));
 
+const setPinFormDisabled = (disabled) => {
+  [pinInput, pinButton, togglePinVisibility].forEach((el) => {
+    if (el) el.disabled = disabled;
+  });
+};
+
 const setFormDisabled = (disabled) => {
   getControls().forEach((el) => {
     el.disabled = disabled;
@@ -81,6 +89,11 @@ const setFormDisabled = (disabled) => {
 };
 
 const unlockSurvey = () => {
+  if (SURVEY_CLOSED) {
+    pinError.textContent = 'La encuesta está cerrada.';
+    setStatusPill('Cerrada', 'closed');
+    return;
+  }
   surveyState = 'ready';
   setFormDisabled(false);
   setStatusPill('Listo para responder', 'ready');
@@ -90,6 +103,10 @@ const unlockSurvey = () => {
 };
 
 const lockSurvey = () => {
+  if (SURVEY_CLOSED) {
+    surveyState = 'closed';
+    return;
+  }
   surveyState = 'locked';
   setFormDisabled(true);
   setStatusPill('Bloqueado', 'locked');
@@ -152,6 +169,10 @@ const renderQuestions = () => {
 };
 
 const validatePin = () => {
+  if (SURVEY_CLOSED) {
+    pinError.textContent = 'La encuesta está cerrada.';
+    return false;
+  }
   if (!isValidPin(pinInput.value)) {
     pinError.textContent = 'PIN incorrecto. Inténtalo de nuevo.';
     lockSurvey();
@@ -171,7 +192,11 @@ const resetForm = () => {
   successMsg.textContent = '';
   errorMsg.textContent = '';
   pinError.textContent = '';
-  lockSurvey();
+  if (SURVEY_CLOSED) {
+    surveyState = 'closed';
+  } else {
+    lockSurvey();
+  }
   pinInput.value = '';
   setPinVisibility(false);
   pinInput.focus();
@@ -184,6 +209,11 @@ const sanitizeNumber = (value, scaleMax = 10) => {
 
 const handleSubmit = async (event) => {
   event.preventDefault();
+
+  if (surveyState === 'closed') {
+    errorMsg.textContent = 'La encuesta está cerrada.';
+    return;
+  }
 
   if (surveyState === 'sent') {
     errorMsg.textContent = 'Esta respuesta ya fue enviada. Ingresa el PIN para responder de nuevo.';
@@ -270,6 +300,8 @@ pinForm.addEventListener('submit', (event) => {
 });
 
 pinInput.addEventListener('input', () => {
+  if (SURVEY_CLOSED) return;
+
   const { selectionStart, selectionEnd } = pinInput;
   const upperValue = pinInput.value.toUpperCase();
   if (pinInput.value !== upperValue) {
@@ -288,6 +320,7 @@ pinInput.addEventListener('input', () => {
 });
 
 togglePinVisibility.addEventListener('click', () => {
+  if (SURVEY_CLOSED) return;
   const show = pinInput.type === 'password';
   setPinVisibility(show);
   pinInput.focus();
@@ -297,7 +330,23 @@ togglePinVisibility.addEventListener('click', () => {
 resetBtn.addEventListener('click', resetForm);
 surveyForm.addEventListener('submit', handleSubmit);
 
+const showClosureScreen = () => {
+  if (closureScreen) closureScreen.hidden = false;
+  document.body.classList.add('survey-closed');
+  setFormDisabled(true);
+  setPinFormDisabled(true);
+  setStatusPill('Cerrada', 'closed');
+  pinHint.textContent = 'La encuesta está cerrada.';
+  pinError.textContent = 'La encuesta ya no acepta respuestas.';
+};
+
 const bootstrap = async () => {
+  if (SURVEY_CLOSED) {
+    renderQuestions();
+    showClosureScreen();
+    surveyState = 'closed';
+    return;
+  }
   try {
     setStatusPill('Cargando...', 'sending');
     setFormDisabled(true);

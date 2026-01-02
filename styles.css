@@ -24,6 +24,30 @@ body {
   flex-direction: column;
 }
 
+body.survey-closed {
+  background: #fff;
+}
+
+.closure-screen {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 100;
+  color: #1f1f1f;
+}
+
+.closure-screen p {
+  margin: 0;
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .brand-header {
   display: flex;
   flex-wrap: wrap;
@@ -124,6 +148,12 @@ body {
   background: rgba(76, 175, 125, 0.18);
   color: #2f7d55;
   border-color: rgba(76, 175, 125, 0.32);
+}
+
+.pill.closed {
+  background: rgba(214, 107, 107, 0.15);
+  color: #b13838;
+  border-color: rgba(214, 107, 107, 0.25);
 }
 
 .field {
